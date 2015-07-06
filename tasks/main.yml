@@ -1,0 +1,23 @@
+# Set up a simple sudoers file
+---
+- include: install.yml
+
+- name: Copying, Verifying and creating sudoers file for users
+  template: 
+    src: "{{ sudo_user_sudoers_template | mandatory }}"
+    dest: "{{ sudo_sudoers_dir }}/{{ item.key }}" 
+    owner: "{{ sudo_sudoers_file_owner | default(omit) }}"
+    group: "{{ sudo_sudoers_file_group | default(omit) }}"
+    mode: "{{ sudo_sudoers_file_mode | default(omit) }}"
+    validate: 'visudo -cf %s'
+  when: item.value.include_sudoers_d is defined and item.value.include_sudoers_d
+  with_dict: sudo_sudoers | default({})
+
+- name: Copying, Verifying and placing sudo file
+  template: 
+    src: "{{ sudo_sudoers_template | mandatory }}"
+    dest: '/etc/sudoers' 
+    owner: "{{ sudo_sudoers_file_owner | default(omit) }}"
+    group: "{{ sudo_sudoers_file_group | default(omit) }}"
+    mode: "{{ sudo_sudoers_file_mode | default(omit) }}"
+    validate: 'visudo -cf %s'

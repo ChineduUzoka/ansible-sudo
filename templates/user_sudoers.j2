@@ -1,0 +1,33 @@
+# {{ansible_managed}}
+
+{% set asuser = item.key %}
+
+{% if item.value.hosts is defined -%}
+  {% set hosts = item.value.hosts %}
+{% else -%}
+  {% set hosts = sudo_userdefaults.hosts %}
+{% endif -%}
+
+{% if item.value.asgroup is defined -%}
+  {% set asgroup = item.value.asgroup %}
+{% else -%}
+  {% set asgroup = sudo_userdefaults.asgroup %}
+{% endif -%}
+
+{% if item.value.nopassword is defined -%}
+  {% set nopassword = item.value.nopassword %}
+{% else -%}
+  {% set nopassword = sudo_userdefaults.nopassword %}
+{% endif -%}
+
+{% if item.value.commands is defined -%}
+  {% set commands = item.value.commands %}
+{% else -%}
+  {%- set commands = sudo_userdefaults.commands %}
+{% endif -%}
+
+{{asuser}} {{hosts}}=({{asuser}}) {{"NOPASSWD:" if nopassword else ""}}{{commands}}
+
+{% if item.value.requiretty != sudo_userdefaults.requiretty -%}
+Defaults:{{ asuser }}   !requiretty
+{% endif -%}
